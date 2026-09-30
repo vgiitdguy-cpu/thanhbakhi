@@ -48,11 +48,11 @@ ScreenGui.Name = "ZenkidTPGui"
 ScreenGui.Parent = CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
+-- INTRO FRAME (Đã xóa nền đen)
 local IntroFrame = Instance.new("Frame")
 IntroFrame.Name = "IntroFrame"
 IntroFrame.Parent = ScreenGui
-IntroFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-IntroFrame.BackgroundTransparency = 0
+IntroFrame.BackgroundTransparency = 1 -- Nền trong suốt hoàn toàn
 IntroFrame.Size = UDim2.new(1, 0, 1, 0)
 IntroFrame.Position = UDim2.new(0, 0, 0, 0)
 IntroFrame.ZIndex = 100
@@ -412,17 +412,15 @@ MinusBtn.MouseButton1Click:Connect(function()
     end
 end)
 
-local rainbowLabel = nil
+-- Tạo hiệu ứng Rainbow riêng cho UI Frame
 local renderConn = RunService.RenderStepped:Connect(function()
     local hue = (tick() * 1.2) % 1
     local color = Color3.fromHSV(hue, 1, 1)
     UIStroke.Color = color
-    if rainbowLabel then
-        rainbowLabel.TextColor3 = color
-    end
 end)
 table.insert(getgenv().ZenkidConnections, renderConn)
 
+-- Tạo dòng chữ trên đầu nhân vật (Màu xanh lá)
 local function createOverheadText(character)
     if not character then return end
     local head = character:WaitForChild("Head", 5)
@@ -444,13 +442,12 @@ local function createOverheadText(character)
     textLabel.Size = UDim2.new(1, 0, 1, 0)
     textLabel.BackgroundTransparency = 1
     textLabel.Font = Enum.Font.SourceSansBold
-    textLabel.Text = "free dm in TT:thanhz2867 for script sell lam tuat gay"
+    textLabel.Text = "free dm in TT:thanhz2867 for script sell lam tuat" -- Đã xóa chữ "gay"
+    textLabel.TextColor3 = Color3.fromRGB(0, 255, 128) -- Chuyển sang màu xanh lá
     textLabel.TextSize = 18
     textLabel.TextScaled = true
     textLabel.TextStrokeTransparency = 0.2
     textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-
-    rainbowLabel = textLabel
 end
 
 task.spawn(function()
@@ -458,15 +455,13 @@ task.spawn(function()
     
     local tweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
     
-    local tweenFrame = TweenService:Create(IntroFrame, tweenInfo, {BackgroundTransparency = 1})
     local tweenTitle = TweenService:Create(IntroTitle, tweenInfo, {TextTransparency = 1})
     local tweenSub = TweenService:Create(IntroSubTitle, tweenInfo, {TextTransparency = 1})
     
-    tweenFrame:Play()
     tweenTitle:Play()
     tweenSub:Play()
     
-    tweenFrame.Completed:Connect(function()
+    tweenTitle.Completed:Connect(function()
         IntroFrame:Destroy()
         MainFrame.Visible = true
 
