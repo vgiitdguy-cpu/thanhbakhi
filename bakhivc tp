@@ -481,7 +481,7 @@ local function createScriptSelectionMenu()
     LkzBtn.Position = UDim2.new(0.1, 0, 0.35, 0)
     LkzBtn.Size = UDim2.new(0.8, 0, 0, 30)
     LkzBtn.Font = Enum.Font.SourceSansBold
-    LkzBtn.Text = "LKZ Hub"
+    LkzBtn.Text = "no use chocola aim"
     LkzBtn.TextColor3 = Color3.fromRGB(0, 220, 255)
     LkzBtn.TextSize = 16
     Instance.new("UICorner", LkzBtn).CornerRadius = UDim.new(0, 6)
@@ -514,7 +514,7 @@ local function createScriptSelectionMenu()
     LkzBtn.MouseButton1Click:Connect(function()
         task.spawn(function()
             pcall(function()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/LucasggkX/LKZ-Hub/refs/heads/main/Loader.lua"))()
+               
             end)
         end)
         finishSelection()
