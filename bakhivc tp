@@ -30,7 +30,7 @@ getgenv().ZenkidLoaded = true
 getgenv().ZenkidConnections = {}
 
 ---------------------------------------------------------
--- DANH SÁCH 8 VẬT PHẨM CHUẨN XẾP THÀNH 1 HÀNG TRÊN HOTBAR
+-- DANH SÁCH 8 VẬT PHẨM CHUẨN ĐƯỢC PHÉP GIỮ LẠI
 ---------------------------------------------------------
 local PriorityNames = {
     "gummy bear",
@@ -49,15 +49,15 @@ local PriorityNames = {
 local function getPriorityIndex(toolName)
     local lowerName = string.lower(toolName)
     for index, pName in ipairs(PriorityNames) do
-        if string.find(lowerName, pName) then
+        if string.find(lowerName, pName, 1, true) then
             return index
         end
     end
-    return 999
+    return nil -- Trả về nil nếu không nằm trong danh sách
 end
 
 ---------------------------------------------------------
--- CƠ CHẾ SẮP XẾP KHÔNG BỊ AUTO CẦM RA TAY
+-- CƠ CHẾ LỌC & SẮP XẾP VẬT PHẨM TRIỆT ĐỂ (XÓA ĐỒ THỪA)
 ---------------------------------------------------------
 local function organizeInventoryProperly()
     pcall(function()
@@ -68,35 +68,62 @@ local function organizeInventoryProperly()
     local character = LocalPlayer.Character
     if not backpack or not character then return end
 
-    -- Trả lại các item đang cầm trên tay về lại Backpack để xếp đúng thứ tự
+    -- 1. Thu hồi các item đang cầm trên tay về Backpack
     for _, item in ipairs(character:GetChildren()) do
         if item:IsA("Tool") then
             item.Parent = backpack
         end
     end
 
-    local tools = {}
+    -- 2. Kiểm tra & Xóa bỏ HOÀN TOÀN các item không thuộc danh sách 8 món
+    local validTools = {}
     for _, item in ipairs(backpack:GetChildren()) do
         if item:IsA("Tool") then
-            table.insert(tools, item)
+            local priorityIndex = getPriorityIndex(item.Name)
+            if priorityIndex then
+                table.insert(validTools, {tool = item, index = priorityIndex})
+            else
+                -- Xóa đồ không nằm trong danh sách cần lấy
+                item:Destroy()
+            end
         end
     end
 
-    -- Sắp xếp: 8 món ưu tiên đứng đầu, các món còn lại đứng sau
-    table.sort(tools, function(a, b)
-        return getPriorityIndex(a.Name) < getPriorityIndex(b.Name)
+    -- 3. Sắp xếp các món hợp lệ theo đúng thứ tự ưu tiên
+    table.sort(validTools, function(a, b)
+        return a.index < b.index
     end)
 
-    -- Refresh lại Parent để Roblox gán đúng vị trí 1, 2, 3, 4, 5, 6, 7, 8 trên Hotbar
-    for _, tool in ipairs(tools) do
-        tool.Parent = nil
-        tool.Parent = backpack
+    -- 4. Cập nhật lại vị trí hiển thị trên Hotbar thanh đồ
+    for _, data in ipairs(validTools) do
+        data.tool.Parent = nil
+        data.tool.Parent = backpack
     end
 end
 
--- Chạy sắp xếp lại đồ khi vào game hoặc đổi server
+-- Tự động dọn dẹp khi nhặt thêm đồ lạ vào Backpack
+local function listenBackpack()
+    local backpack = LocalPlayer:WaitForChild("Backpack", 5)
+    if not backpack then return end
+    
+    local conn = backpack.ChildAdded:Connect(function(child)
+        if child:IsA("Tool") then
+            task.wait(0.05)
+            if not getPriorityIndex(child.Name) then
+                child:Destroy() -- Xóa ngay lập tức đồ lạ mới nhặt
+            else
+                organizeInventoryProperly()
+            end
+        end
+    end)
+    table.insert(getgenv().ZenkidConnections, conn)
+end
+
+listenBackpack()
+
+-- Chạy sắp xếp lại đồ khi vào game
 task.spawn(function()
-    task.wait(1)
+    task.wait(0.5)
     organizeInventoryProperly()
 end)
 
@@ -496,7 +523,9 @@ local renderConn = RunService.RenderStepped:Connect(function()
 end)
 table.insert(getgenv().ZenkidConnections, renderConn)
 
--- Chữ chạy trên đầu
+---------------------------------------------------------
+-- FIX CHỮ CHẠY TRÊN ĐẦU (GỌN GÀNG, KHÔNG BỊ ĐÈ CHỮ)
+---------------------------------------------------------
 local function createOverheadText(character)
     if not character then return end
     local head = character:WaitForChild("Head", 5)
@@ -509,8 +538,8 @@ local function createOverheadText(character)
     billboard.Name = "ZenkidRainbowBillboard"
     billboard.Parent = character
     billboard.Adornee = head
-    billboard.Size = UDim2.new(0, 450, 0, 50)
-    billboard.StudsOffset = Vector3.new(0, 2.5, 0)
+    billboard.Size = UDim2.new(0, 250, 0, 30) -- Giảm Size khung vừa vặn
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
     billboard.AlwaysOnTop = true
 
     local textLabel = Instance.new("TextLabel")
@@ -520,8 +549,9 @@ local function createOverheadText(character)
     textLabel.Font = Enum.Font.SourceSansBold
     textLabel.Text = "free dm in TT:thanhz2867 for script sell lam tuat"
     textLabel.TextColor3 = Color3.fromRGB(0, 255, 128)
-    textLabel.TextSize = 18
-    textLabel.TextScaled = true
+    textLabel.TextSize = 13                     -- Chữ nhỏ vừa mắt
+    textLabel.TextScaled = false                 -- Tắt TextScaled để chữ không phóng to che màn hình
+    textLabel.TextWrapped = true                -- Tự xuống dòng gọn gàng
     textLabel.TextStrokeTransparency = 0.2
     textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 end
@@ -589,6 +619,8 @@ local function createScriptSelectionMenu()
 
         local charConn = LocalPlayer.CharacterAdded:Connect(function(newChar)
             createOverheadText(newChar)
+            task.wait(0.5)
+            organizeInventoryProperly()
         end)
         table.insert(getgenv().ZenkidConnections, charConn)
     end
