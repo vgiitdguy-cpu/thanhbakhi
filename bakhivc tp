@@ -30,49 +30,68 @@ getgenv().ZenkidLoaded = true
 getgenv().ZenkidConnections = {}
 
 ---------------------------------------------------------
--- ANTI ẨN VẬT PHẨM & BẢO VỆ KHO ĐỒ (TỐI ƯU KHÔNG BỊ HIỆN 2 Ô ĐỒ)
+-- DANH SÁCH 8 VẬT PHẨM ƯU TIÊN VÀO THANH VẬT PHẨM (HOTBAR)
 ---------------------------------------------------------
-local function enableAntiInventoryHide()
+local PriorityItems = {
+    "Gummy Bear",
+    "Laser Cape",
+    "Subspace Tri-Mine",
+    "Subspace Mine",
+    "Body Swap Potion",
+    "All-Seeing Sentry",
+    "Beehive",
+    "Trap",
+    "Bear Trap",
+    "Paintball Gun"
+}
+
+local function isPriorityItem(toolName)
+    for _, name in ipairs(PriorityItems) do
+        if string.find(string.lower(toolName), string.lower(name)) then
+            return true
+        end
+    end
+    return false
+end
+
+---------------------------------------------------------
+-- TỐI ƯU KHO ĐỒ & CHUYỂN MẤY MÓN BỊ ĐÈ VÀO KHO ĐỒ
+---------------------------------------------------------
+local function organizeInventory()
     pcall(function()
         StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, true)
     end)
 
-    local function protectTool(tool)
+    local backpack = LocalPlayer:FindFirstChild("Backpack")
+    local character = LocalPlayer.Character
+    if not backpack or not character then return end
+
+    -- Giữ cho các món thừa/bị đè không bị rơi ra ngoài và cất gọn vào Kho
+    for _, tool in ipairs(backpack:GetChildren()) do
         if tool:IsA("Tool") then
             tool.CanBeDropped = true
-            local toolConn = tool:GetPropertyChangedSignal("Parent"):Connect(function()
-                if not tool.Parent and LocalPlayer:FindFirstChild("Backpack") then
-                    pcall(function()
-                        tool.Parent = LocalPlayer.Backpack
-                    end)
+        end
+    end
+
+    -- Xử lý việc chuyển vật phẩm ưu tiên lên nhân vật/hotbar
+    for _, tool in ipairs(backpack:GetChildren()) do
+        if tool:IsA("Tool") and isPriorityItem(tool.Name) then
+            -- Món nằm trong danh sách 8 món sẽ được đưa vào sử dụng để tạo 1 hàng
+            pcall(function()
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid:EquipTool(tool)
                 end
             end)
-            table.insert(getgenv().ZenkidConnections, toolConn)
         end
     end
-
-    local function setupBackpackProtection(backpack)
-        if not backpack then return end
-        for _, child in ipairs(backpack:GetChildren()) do
-            protectTool(child)
-        end
-        local childAddedConn = backpack.ChildAdded:Connect(protectTool)
-        table.insert(getgenv().ZenkidConnections, childAddedConn)
-    end
-
-    if LocalPlayer:FindFirstChild("Backpack") then
-        setupBackpackProtection(LocalPlayer.Backpack)
-    end
-
-    local backpackConn = LocalPlayer.ChildAdded:Connect(function(child)
-        if child.Name == "Backpack" then
-            setupBackpackProtection(child)
-        end
-    end)
-    table.insert(getgenv().ZenkidConnections, backpackConn)
 end
 
-enableAntiInventoryHide()
+task.spawn(function()
+    while task.wait(2) do
+        organizeInventory()
+    end
+end)
 
 ---------------------------------------------------------
 -- KHỞI TẠO TỌA ĐỘ TP
@@ -124,12 +143,12 @@ IntroSubTitle.TextSize = 20
 IntroSubTitle.TextTransparency = 0
 IntroSubTitle.ZIndex = 101
 
--- MAIN FRAME (ĐẶT VỊ TRÍ CAO HƠN ĐỂ KHÔNG BỊ ĐÈ LÊN THANH CÔNG CỤ)
+-- MAIN FRAME (ĐẶT VỊ TRÍ GỌN GÀNG KHÔNG ĐÈ KHO ĐỒ)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-MainFrame.Position = UDim2.new(0.35, 0, 0.15, 0)
+MainFrame.Position = UDim2.new(0.35, 0, 0.12, 0)
 MainFrame.Size = UDim2.new(0, 230, 0, 105)
 MainFrame.Active = true
 MainFrame.Draggable = true
@@ -215,26 +234,24 @@ ToggleButton.ZIndex = 2
 Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(0, 5)
 
 ---------------------------------------------------------
--- NÚT TP XANH LÁ RỘNG BẤM DỄ, CHỮ CHUẨN KÍCH THƯỚC
+-- NÚT TP XANH LÁ
 ---------------------------------------------------------
 local TopTpButton = Instance.new("TextButton")
 TopTpButton.Name = "TopTpButton"
 TopTpButton.Parent = MainFrame
-TopTpButton.BackgroundColor3 = Color3.fromRGB(0, 200, 100) -- Cục màu xanh lá tươi
+TopTpButton.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
 TopTpButton.Position = UDim2.new(0.08, 0, 0.4, 0)
-TopTpButton.Size = UDim2.new(0.84, 0, 0, 50) -- Nút rộng to dễ nhấn trên Mobile
+TopTpButton.Size = UDim2.new(0.84, 0, 0, 50)
 TopTpButton.Font = Enum.Font.GothamBold
-TopTpButton.Text = "TP [T]" -- Chữ vừa vặn, không quá to
+TopTpButton.Text = "TP [T]"
 TopTpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-TopTpButton.TextSize = 18 -- Hạ cỡ chữ hợp lý tránh tràn viền
+TopTpButton.TextSize = 18
 TopTpButton.ZIndex = 10
 
--- Bo tròn góc cho khối xanh
 local TpCorner = Instance.new("UICorner")
 TpCorner.CornerRadius = UDim.new(0, 10)
 TpCorner.Parent = TopTpButton
 
--- Viền trắng nhẹ
 local TpStroke = Instance.new("UIStroke")
 TpStroke.Parent = TopTpButton
 TpStroke.Color = Color3.fromRGB(255, 255, 255)
@@ -464,7 +481,7 @@ MinusBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Hiệu ứng Rainbow cho viền
+-- Hiệu ứng Rainbow viền
 local renderConn = RunService.RenderStepped:Connect(function()
     local hue = (tick() * 1.2) % 1
     local color = Color3.fromHSV(hue, 1, 1)
@@ -502,7 +519,7 @@ local function createOverheadText(character)
     textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 end
 
--- TẠO UI LỰA CHỌN SCRIPT SAU INTRO
+-- UI LỰA CHỌN SCRIPT
 local function createScriptSelectionMenu()
     local SelectFrame = Instance.new("Frame")
     SelectFrame.Name = "ScriptSelectionFrame"
