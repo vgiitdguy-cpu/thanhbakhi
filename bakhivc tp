@@ -30,34 +30,36 @@ getgenv().ZenkidLoaded = true
 getgenv().ZenkidConnections = {}
 
 ---------------------------------------------------------
--- DANH SÁCH 8 VẬT PHẨM ƯU TIÊN VÀO THANH VẬT PHẨM (HOTBAR)
+-- DANH SÁCH 8 VẬT PHẨM CHUẨN XẾP THÀNH 1 HÀNG TRÊN HOTBAR
 ---------------------------------------------------------
-local PriorityItems = {
-    "Gummy Bear",
-    "Laser Cape",
-    "Subspace Tri-Mine",
-    "Subspace Mine",
-    "Body Swap Potion",
-    "All-Seeing Sentry",
-    "Beehive",
-    "Trap",
-    "Bear Trap",
-    "Paintball Gun"
+local PriorityNames = {
+    "gummy bear",
+    "laser cape",
+    "subspace mine",
+    "subspace tri-mine",
+    "body swap potion",
+    "all seeing sentry",
+    "all-seeing sentry",
+    "beehive",
+    "trap",
+    "bear trap",
+    "paintball gun"
 }
 
-local function isPriorityItem(toolName)
-    for _, name in ipairs(PriorityItems) do
-        if string.find(string.lower(toolName), string.lower(name)) then
-            return true
+local function getPriorityIndex(toolName)
+    local lowerName = string.lower(toolName)
+    for index, pName in ipairs(PriorityNames) do
+        if string.find(lowerName, pName) then
+            return index
         end
     end
-    return false
+    return 999
 end
 
 ---------------------------------------------------------
--- TỐI ƯU KHO ĐỒ & CHUYỂN MẤY MÓN BỊ ĐÈ VÀO KHO ĐỒ
+-- CƠ CHẾ SẮP XẾP KHÔNG BỊ AUTO CẦM RA TAY
 ---------------------------------------------------------
-local function organizeInventory()
+local function organizeInventoryProperly()
     pcall(function()
         StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, true)
     end)
@@ -66,31 +68,36 @@ local function organizeInventory()
     local character = LocalPlayer.Character
     if not backpack or not character then return end
 
-    -- Giữ cho các món thừa/bị đè không bị rơi ra ngoài và cất gọn vào Kho
-    for _, tool in ipairs(backpack:GetChildren()) do
-        if tool:IsA("Tool") then
-            tool.CanBeDropped = true
+    -- Trả lại các item đang cầm trên tay về lại Backpack để xếp đúng thứ tự
+    for _, item in ipairs(character:GetChildren()) do
+        if item:IsA("Tool") then
+            item.Parent = backpack
         end
     end
 
-    -- Xử lý việc chuyển vật phẩm ưu tiên lên nhân vật/hotbar
-    for _, tool in ipairs(backpack:GetChildren()) do
-        if tool:IsA("Tool") and isPriorityItem(tool.Name) then
-            -- Món nằm trong danh sách 8 món sẽ được đưa vào sử dụng để tạo 1 hàng
-            pcall(function()
-                local humanoid = character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    humanoid:EquipTool(tool)
-                end
-            end)
+    local tools = {}
+    for _, item in ipairs(backpack:GetChildren()) do
+        if item:IsA("Tool") then
+            table.insert(tools, item)
         end
+    end
+
+    -- Sắp xếp: 8 món ưu tiên đứng đầu, các món còn lại đứng sau
+    table.sort(tools, function(a, b)
+        return getPriorityIndex(a.Name) < getPriorityIndex(b.Name)
+    end)
+
+    -- Refresh lại Parent để Roblox gán đúng vị trí 1, 2, 3, 4, 5, 6, 7, 8 trên Hotbar
+    for _, tool in ipairs(tools) do
+        tool.Parent = nil
+        tool.Parent = backpack
     end
 end
 
+-- Chạy sắp xếp lại đồ khi vào game hoặc đổi server
 task.spawn(function()
-    while task.wait(2) do
-        organizeInventory()
-    end
+    task.wait(1)
+    organizeInventoryProperly()
 end)
 
 ---------------------------------------------------------
@@ -143,7 +150,7 @@ IntroSubTitle.TextSize = 20
 IntroSubTitle.TextTransparency = 0
 IntroSubTitle.ZIndex = 101
 
--- MAIN FRAME (ĐẶT VỊ TRÍ GỌN GÀNG KHÔNG ĐÈ KHO ĐỒ)
+-- MAIN FRAME
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
@@ -234,7 +241,7 @@ ToggleButton.ZIndex = 2
 Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(0, 5)
 
 ---------------------------------------------------------
--- NÚT TP XANH LÁ
+-- NÚT TP [T]
 ---------------------------------------------------------
 local TopTpButton = Instance.new("TextButton")
 TopTpButton.Name = "TopTpButton"
@@ -481,7 +488,7 @@ MinusBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Hiệu ứng Rainbow viền
+-- Hiệu ứng viền cầu vồng
 local renderConn = RunService.RenderStepped:Connect(function()
     local hue = (tick() * 1.2) % 1
     local color = Color3.fromHSV(hue, 1, 1)
@@ -489,7 +496,7 @@ local renderConn = RunService.RenderStepped:Connect(function()
 end)
 table.insert(getgenv().ZenkidConnections, renderConn)
 
--- Dòng chữ trên đầu nhân vật
+-- Chữ chạy trên đầu
 local function createOverheadText(character)
     if not character then return end
     local head = character:WaitForChild("Head", 5)
@@ -600,7 +607,7 @@ local function createScriptSelectionMenu()
     end)
 end
 
--- XỬ LÝ CHẠY INTRO
+-- CHẠY INTRO
 task.spawn(function()
     task.wait(1)
     
