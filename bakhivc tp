@@ -28,12 +28,6 @@ end
 getgenv().ZenkidLoaded = true
 getgenv().ZenkidConnections = {}
 
-task.spawn(function()
-    pcall(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/chocolascript-glitch/Chocola-Aimbot-Cap/refs/heads/main/Script.lua"))()
-    end)
-end)
-
 local LeftP1 = CFrame.new(-473.2, -4.9, 95.1)
 local LeftP2 = CFrame.new(-488.8, 4.9, 94.5)
 local RightP1 = CFrame.new(-471.5, -5.1, 23.5)
@@ -48,11 +42,11 @@ ScreenGui.Name = "ZenkidTPGui"
 ScreenGui.Parent = CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- INTRO FRAME (Đã xóa nền đen)
+-- INTRO FRAME
 local IntroFrame = Instance.new("Frame")
 IntroFrame.Name = "IntroFrame"
 IntroFrame.Parent = ScreenGui
-IntroFrame.BackgroundTransparency = 1 -- Nền trong suốt hoàn toàn
+IntroFrame.BackgroundTransparency = 1
 IntroFrame.Size = UDim2.new(1, 0, 1, 0)
 IntroFrame.Position = UDim2.new(0, 0, 0, 0)
 IntroFrame.ZIndex = 100
@@ -81,6 +75,7 @@ IntroSubTitle.TextSize = 20
 IntroSubTitle.TextTransparency = 0
 IntroSubTitle.ZIndex = 101
 
+-- MAIN FRAME
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
@@ -412,7 +407,7 @@ MinusBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Tạo hiệu ứng Rainbow riêng cho UI Frame
+-- Hiệu ứng Rainbow riêng cho UI Frame
 local renderConn = RunService.RenderStepped:Connect(function()
     local hue = (tick() * 1.2) % 1
     local color = Color3.fromHSV(hue, 1, 1)
@@ -420,7 +415,7 @@ local renderConn = RunService.RenderStepped:Connect(function()
 end)
 table.insert(getgenv().ZenkidConnections, renderConn)
 
--- Tạo dòng chữ trên đầu nhân vật (Màu xanh lá)
+-- Dòng chữ trên đầu nhân vật
 local function createOverheadText(character)
     if not character then return end
     local head = character:WaitForChild("Head", 5)
@@ -442,27 +437,68 @@ local function createOverheadText(character)
     textLabel.Size = UDim2.new(1, 0, 1, 0)
     textLabel.BackgroundTransparency = 1
     textLabel.Font = Enum.Font.SourceSansBold
-    textLabel.Text = "free dm in TT:thanhz2867 for script sell lam tuat" -- Đã xóa chữ "gay"
-    textLabel.TextColor3 = Color3.fromRGB(0, 255, 128) -- Chuyển sang màu xanh lá
+    textLabel.Text = "free dm in TT:thanhz2867 for script sell lam tuat"
+    textLabel.TextColor3 = Color3.fromRGB(0, 255, 128)
     textLabel.TextSize = 18
     textLabel.TextScaled = true
     textLabel.TextStrokeTransparency = 0.2
     textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 end
 
-task.spawn(function()
-    task.wait(1)
-    
-    local tweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    
-    local tweenTitle = TweenService:Create(IntroTitle, tweenInfo, {TextTransparency = 1})
-    local tweenSub = TweenService:Create(IntroSubTitle, tweenInfo, {TextTransparency = 1})
-    
-    tweenTitle:Play()
-    tweenSub:Play()
-    
-    tweenTitle.Completed:Connect(function()
-        IntroFrame:Destroy()
+-- TẠO UI LỰA CHỌN SCRIPT SAU INTRO
+local function createScriptSelectionMenu()
+    local SelectFrame = Instance.new("Frame")
+    SelectFrame.Name = "ScriptSelectionFrame"
+    SelectFrame.Parent = ScreenGui
+    SelectFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+    SelectFrame.Position = UDim2.new(0.5, -125, 0.4, -60)
+    SelectFrame.Size = UDim2.new(0, 250, 0, 130)
+    SelectFrame.Active = true
+    SelectFrame.Draggable = true
+
+    local SelectCorner = Instance.new("UICorner")
+    SelectCorner.CornerRadius = UDim.new(0, 12)
+    SelectCorner.Parent = SelectFrame
+
+    local SelectStroke = Instance.new("UIStroke")
+    SelectStroke.Parent = SelectFrame
+    SelectStroke.Thickness = 2
+    SelectStroke.Color = Color3.fromRGB(0, 150, 255)
+
+    local SelectTitle = Instance.new("TextLabel")
+    SelectTitle.Parent = SelectFrame
+    SelectTitle.BackgroundTransparency = 1
+    SelectTitle.Position = UDim2.new(0, 0, 0, 10)
+    SelectTitle.Size = UDim2.new(1, 0, 0, 25)
+    SelectTitle.Font = Enum.Font.GothamBold
+    SelectTitle.Text = "Select Extra Script"
+    SelectTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SelectTitle.TextSize = 14
+
+    local LkzBtn = Instance.new("TextButton")
+    LkzBtn.Parent = SelectFrame
+    LkzBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+    LkzBtn.Position = UDim2.new(0.1, 0, 0.35, 0)
+    LkzBtn.Size = UDim2.new(0.8, 0, 0, 30)
+    LkzBtn.Font = Enum.Font.SourceSansBold
+    LkzBtn.Text = "LKZ Hub"
+    LkzBtn.TextColor3 = Color3.fromRGB(0, 220, 255)
+    LkzBtn.TextSize = 16
+    Instance.new("UICorner", LkzBtn).CornerRadius = UDim.new(0, 6)
+
+    local ChocolaBtn = Instance.new("TextButton")
+    ChocolaBtn.Parent = SelectFrame
+    ChocolaBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+    ChocolaBtn.Position = UDim2.new(0.1, 0, 0.65, 0)
+    ChocolaBtn.Size = UDim2.new(0.8, 0, 0, 30)
+    ChocolaBtn.Font = Enum.Font.SourceSansBold
+    ChocolaBtn.Text = "Chocola Aimbot"
+    ChocolaBtn.TextColor3 = Color3.fromRGB(255, 100, 150)
+    ChocolaBtn.TextSize = 16
+    Instance.new("UICorner", ChocolaBtn).CornerRadius = UDim.new(0, 6)
+
+    local function finishSelection()
+        SelectFrame:Destroy()
         MainFrame.Visible = true
 
         if LocalPlayer.Character then
@@ -473,5 +509,40 @@ task.spawn(function()
             createOverheadText(newChar)
         end)
         table.insert(getgenv().ZenkidConnections, charConn)
+    end
+
+    LkzBtn.MouseButton1Click:Connect(function()
+        task.spawn(function()
+            pcall(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/LucasggkX/LKZ-Hub/refs/heads/main/Loader.lua"))()
+            end)
+        end)
+        finishSelection()
+    end)
+
+    ChocolaBtn.MouseButton1Click:Connect(function()
+        task.spawn(function()
+            pcall(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/chocolascript-glitch/Chocola-Aimbot-Cap/refs/heads/main/Script.lua"))()
+            end)
+        end)
+        finishSelection()
+    end)
+end
+
+-- XỬ LÝ CHẠY INTRO LẦN ĐẦU
+task.spawn(function()
+    task.wait(1)
+    
+    local tweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local tweenTitle = TweenService:Create(IntroTitle, tweenInfo, {TextTransparency = 1})
+    local tweenSub = TweenService:Create(IntroSubTitle, tweenInfo, {TextTransparency = 1})
+    
+    tweenTitle:Play()
+    tweenSub:Play()
+    
+    tweenTitle.Completed:Connect(function()
+        IntroFrame:Destroy()
+        createScriptSelectionMenu()
     end)
 end)
