@@ -30,16 +30,11 @@ getgenv().ZenkidLoaded = true
 getgenv().ZenkidConnections = {}
 
 ---------------------------------------------------------
--- ANTI ẨN VẬT PHẨM & BẢO VỆ KHO ĐỒ (TỐI ƯU KHÔNG ĐÈ UI)
+-- ANTI ẨN VẬT PHẨM & BẢO VỆ KHO ĐỒ (TỐI ƯU KHÔNG BỊ HIỆN 2 Ô ĐỒ)
 ---------------------------------------------------------
 local function enableAntiInventoryHide()
-    task.spawn(function()
-        while getgenv().ZenkidLoaded do
-            pcall(function()
-                StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, true)
-            end)
-            task.wait(1.5)
-        end
+    pcall(function()
+        StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, true)
     end)
 
     local function protectTool(tool)
@@ -129,25 +124,25 @@ IntroSubTitle.TextSize = 20
 IntroSubTitle.TextTransparency = 0
 IntroSubTitle.ZIndex = 101
 
--- MAIN FRAME
+-- MAIN FRAME (ĐẶT VỊ TRÍ CAO HƠN ĐỂ KHÔNG BỊ ĐÈ LÊN THANH CÔNG CỤ)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-MainFrame.Position = UDim2.new(0.35, 0, 0.25, 0)
-MainFrame.Size = UDim2.new(0, 250, 0, 125)
+MainFrame.Position = UDim2.new(0.35, 0, 0.15, 0)
+MainFrame.Size = UDim2.new(0, 230, 0, 105)
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.ClipsDescendants = true
 MainFrame.Visible = false
 
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 14)
+MainCorner.CornerRadius = UDim.new(0, 12)
 MainCorner.Parent = MainFrame
 
 local UIStroke = Instance.new("UIStroke")
 UIStroke.Parent = MainFrame
-UIStroke.Thickness = 4
+UIStroke.Thickness = 3
 UIStroke.Color = Color3.fromRGB(255, 0, 0)
 
 local MenuImageBg = Instance.new("ImageLabel")
@@ -161,14 +156,14 @@ MenuImageBg.ImageTransparency = 0.3
 MenuImageBg.ZIndex = 1
 
 local BgCorner = Instance.new("UICorner")
-BgCorner.CornerRadius = UDim.new(0, 14)
+BgCorner.CornerRadius = UDim.new(0, 12)
 BgCorner.Parent = MenuImageBg
 
 local TopBar = Instance.new("Frame")
 TopBar.Name = "TopBar"
 TopBar.Parent = MainFrame
 TopBar.BackgroundTransparency = 1
-TopBar.Size = UDim2.new(1, 0, 0, 35)
+TopBar.Size = UDim2.new(1, 0, 0, 32)
 TopBar.ZIndex = 2
 
 local LockButton = Instance.new("TextButton")
@@ -176,22 +171,22 @@ LockButton.Name = "LockButton"
 LockButton.Parent = TopBar
 LockButton.BackgroundTransparency = 1
 LockButton.Position = UDim2.new(0.04, 0, 0.1, 0)
-LockButton.Size = UDim2.new(0, 45, 0, 25)
+LockButton.Size = UDim2.new(0, 45, 0, 22)
 LockButton.Font = Enum.Font.SourceSansBold
 LockButton.Text = "LOCK"
 LockButton.TextColor3 = Color3.fromRGB(255, 100, 130)
-LockButton.TextSize = 14
+LockButton.TextSize = 13
 LockButton.ZIndex = 2
 
 local TitleLabel = Instance.new("TextLabel")
 TitleLabel.Parent = TopBar
 TitleLabel.BackgroundTransparency = 1
 TitleLabel.Position = UDim2.new(0.31, 0, 0.1, 0)
-TitleLabel.Size = UDim2.new(0, 75, 0, 25)
+TitleLabel.Size = UDim2.new(0, 70, 0, 22)
 TitleLabel.Font = Enum.Font.SourceSansBold
 TitleLabel.Text = "bakhivc"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-TitleLabel.TextSize = 15
+TitleLabel.TextSize = 14
 TitleLabel.ZIndex = 2
 
 local PingLabel = Instance.new("TextLabel")
@@ -199,11 +194,11 @@ PingLabel.Name = "PingLabel"
 PingLabel.Parent = TopBar
 PingLabel.BackgroundTransparency = 1
 PingLabel.Position = UDim2.new(0.61, 0, 0.1, 0)
-PingLabel.Size = UDim2.new(0, 45, 0, 25)
+PingLabel.Size = UDim2.new(0, 45, 0, 22)
 PingLabel.Font = Enum.Font.SourceSansBold
 PingLabel.Text = "0ms"
 PingLabel.TextColor3 = Color3.fromRGB(255, 140, 50)
-PingLabel.TextSize = 13
+PingLabel.TextSize = 12
 PingLabel.ZIndex = 2
 
 local ToggleButton = Instance.new("TextButton")
@@ -211,39 +206,39 @@ ToggleButton.Name = "ToggleButton"
 ToggleButton.Parent = TopBar
 ToggleButton.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
 ToggleButton.Position = UDim2.new(0.85, 0, 0.15, 0)
-ToggleButton.Size = UDim2.new(0, 22, 0, 22)
+ToggleButton.Size = UDim2.new(0, 20, 0, 20)
 ToggleButton.Font = Enum.Font.GothamBold
 ToggleButton.Text = "+"
 ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleButton.TextSize = 15
+ToggleButton.TextSize = 14
 ToggleButton.ZIndex = 2
-Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(0, 6)
+Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(0, 5)
 
 ---------------------------------------------------------
--- NÚT TP XANH LÁ TO HƠN, SIÊU DỄ BẤM TRÊN MOBILE (KHÔNG ĐÈ CHỮ)
+-- NÚT TP XANH LÁ RỘNG BẤM DỄ, CHỮ CHUẨN KÍCH THƯỚC
 ---------------------------------------------------------
 local TopTpButton = Instance.new("TextButton")
 TopTpButton.Name = "TopTpButton"
 TopTpButton.Parent = MainFrame
-TopTpButton.BackgroundColor3 = Color3.fromRGB(0, 230, 118) -- Cục màu xanh lá tươi nổi bật
-TopTpButton.Position = UDim2.new(0.08, 0, 0.38, 0)
-TopTpButton.Size = UDim2.new(0.84, 0, 0, 60) -- Tăng kích thước cực to rành riêng cho Mobile
+TopTpButton.BackgroundColor3 = Color3.fromRGB(0, 200, 100) -- Cục màu xanh lá tươi
+TopTpButton.Position = UDim2.new(0.08, 0, 0.4, 0)
+TopTpButton.Size = UDim2.new(0.84, 0, 0, 50) -- Nút rộng to dễ nhấn trên Mobile
 TopTpButton.Font = Enum.Font.GothamBold
-TopTpButton.Text = "TP [T]" -- Bỏ chữ rườm rà, viết tắt ngắn gọn chống tràn/đè chữ
+TopTpButton.Text = "TP [T]" -- Chữ vừa vặn, không quá to
 TopTpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-TopTpButton.TextSize = 26
-TopTpButton.ZIndex = 10 -- Đẩy ZIndex cao nhất để tuyệt đối không bị đè
+TopTpButton.TextSize = 18 -- Hạ cỡ chữ hợp lý tránh tràn viền
+TopTpButton.ZIndex = 10
 
--- Bo tròn góc cho cục xanh lá
+-- Bo tròn góc cho khối xanh
 local TpCorner = Instance.new("UICorner")
-TpCorner.CornerRadius = UDim.new(0, 12)
+TpCorner.CornerRadius = UDim.new(0, 10)
 TpCorner.Parent = TopTpButton
 
--- Viền trắng đẹp mắt
+-- Viền trắng nhẹ
 local TpStroke = Instance.new("UIStroke")
 TpStroke.Parent = TopTpButton
 TpStroke.Color = Color3.fromRGB(255, 255, 255)
-TpStroke.Thickness = 2.5
+TpStroke.Thickness = 1.8
 
 local CreditLabel = Instance.new("TextLabel")
 CreditLabel.Name = "CreditLabel"
@@ -263,8 +258,8 @@ ContentContainer.Name = "ContentContainer"
 ContentContainer.Parent = MainFrame
 ContentContainer.Active = true
 ContentContainer.BackgroundTransparency = 1
-ContentContainer.Position = UDim2.new(0, 0, 0, 40)
-ContentContainer.Size = UDim2.new(1, 0, 1, -40)
+ContentContainer.Position = UDim2.new(0, 0, 0, 36)
+ContentContainer.Size = UDim2.new(1, 0, 1, -36)
 ContentContainer.Visible = false
 ContentContainer.CanvasSize = UDim2.new(0, 0, 0, 150)
 ContentContainer.ScrollBarThickness = 2
@@ -441,10 +436,10 @@ ToggleButton.MouseButton1Click:Connect(function()
     
     if menuOpened then
         ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 205, 50)
-        MainFrame.Size = UDim2.new(0, 250, 0, 230)
+        MainFrame.Size = UDim2.new(0, 230, 0, 210)
     else
         ToggleButton.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
-        MainFrame.Size = UDim2.new(0, 250, 0, 125)
+        MainFrame.Size = UDim2.new(0, 230, 0, 105)
     end
 end)
 
@@ -469,7 +464,7 @@ MinusBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Hiệu ứng Rainbow riêng cho viền UI Frame
+-- Hiệu ứng Rainbow cho viền
 local renderConn = RunService.RenderStepped:Connect(function()
     local hue = (tick() * 1.2) % 1
     local color = Color3.fromHSV(hue, 1, 1)
@@ -507,14 +502,14 @@ local function createOverheadText(character)
     textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 end
 
--- TẠO UI LỰA CHỌN SCRIPT SAU INTRO (CHOCOLA AIMBOT & NO USE)
+-- TẠO UI LỰA CHỌN SCRIPT SAU INTRO
 local function createScriptSelectionMenu()
     local SelectFrame = Instance.new("Frame")
     SelectFrame.Name = "ScriptSelectionFrame"
     SelectFrame.Parent = ScreenGui
     SelectFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-    SelectFrame.Position = UDim2.new(0.5, -125, 0.4, -60)
-    SelectFrame.Size = UDim2.new(0, 250, 0, 130)
+    SelectFrame.Position = UDim2.new(0.5, -120, 0.4, -60)
+    SelectFrame.Size = UDim2.new(0, 240, 0, 125)
     SelectFrame.Active = true
     SelectFrame.Draggable = true
     SelectFrame.ZIndex = 50
@@ -546,7 +541,7 @@ local function createScriptSelectionMenu()
     ChocolaBtn.Font = Enum.Font.SourceSansBold
     ChocolaBtn.Text = "Chocola Aimbot"
     ChocolaBtn.TextColor3 = Color3.fromRGB(255, 100, 150)
-    ChocolaBtn.TextSize = 16
+    ChocolaBtn.TextSize = 15
     Instance.new("UICorner", ChocolaBtn).CornerRadius = UDim.new(0, 6)
 
     local NoUseBtn = Instance.new("TextButton")
@@ -557,7 +552,7 @@ local function createScriptSelectionMenu()
     NoUseBtn.Font = Enum.Font.SourceSansBold
     NoUseBtn.Text = "No Use"
     NoUseBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-    NoUseBtn.TextSize = 16
+    NoUseBtn.TextSize = 15
     Instance.new("UICorner", NoUseBtn).CornerRadius = UDim.new(0, 6)
 
     local function finishSelection()
