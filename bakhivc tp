@@ -3,6 +3,7 @@ local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
 local LocalPlayer = Players.LocalPlayer
 
 if getgenv().ZenkidLoaded then
@@ -28,6 +29,59 @@ end
 getgenv().ZenkidLoaded = true
 getgenv().ZenkidConnections = {}
 
+---------------------------------------------------------
+-- ANTI ẨN VẬT PHẨM & BẢO VỆ KHO ĐỒ (ANTI-INVENTORY HIDE)
+---------------------------------------------------------
+local function enableAntiInventoryHide()
+    task.spawn(function()
+        while getgenv().ZenkidLoaded do
+            pcall(function()
+                StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, true)
+            end)
+            task.wait(1)
+        end
+    end)
+
+    local function protectTool(tool)
+        if tool:IsA("Tool") then
+            tool.CanBeDropped = true
+            local toolConn = tool:GetPropertyChangedSignal("Parent"):Connect(function()
+                if not tool.Parent and LocalPlayer:FindFirstChild("Backpack") then
+                    pcall(function()
+                        tool.Parent = LocalPlayer.Backpack
+                    end)
+                end
+            end)
+            table.insert(getgenv().ZenkidConnections, toolConn)
+        end
+    end
+
+    local function setupBackpackProtection(backpack)
+        if not backpack then return end
+        for _, child in ipairs(backpack:GetChildren()) do
+            protectTool(child)
+        end
+        local childAddedConn = backpack.ChildAdded:Connect(protectTool)
+        table.insert(getgenv().ZenkidConnections, childAddedConn)
+    end
+
+    if LocalPlayer:FindFirstChild("Backpack") then
+        setupBackpackProtection(LocalPlayer.Backpack)
+    end
+
+    local backpackConn = LocalPlayer.ChildAdded:Connect(function(child)
+        if child.Name == "Backpack" then
+            setupBackpackProtection(child)
+        end
+    end)
+    table.insert(getgenv().ZenkidConnections, backpackConn)
+end
+
+enableAntiInventoryHide()
+
+---------------------------------------------------------
+-- KHỞI TẠO TỌA ĐỘ TP
+---------------------------------------------------------
 local LeftP1 = CFrame.new(-473.2, -4.9, 95.1)
 local LeftP2 = CFrame.new(-488.8, 4.9, 94.5)
 local RightP1 = CFrame.new(-471.5, -5.1, 23.5)
@@ -165,23 +219,31 @@ ToggleButton.TextSize = 15
 ToggleButton.ZIndex = 2
 Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(0, 5)
 
+---------------------------------------------------------
+-- NÚT TP MỚI DÀNH CHO MOBILE (CÓ CỤC XANH LÁ BO TRÒN)
+---------------------------------------------------------
 local TopTpButton = Instance.new("TextButton")
 TopTpButton.Name = "TopTpButton"
 TopTpButton.Parent = MainFrame
-TopTpButton.BackgroundTransparency = 1
-TopTpButton.Position = UDim2.new(0.3, 0, 0.52, 0)
-TopTpButton.Size = UDim2.new(0, 95, 0, 28)
+TopTpButton.BackgroundColor3 = Color3.fromRGB(0, 200, 100) -- Cục màu xanh lá nổi bật
+TopTpButton.Position = UDim2.new(0.15, 0, 0.45, 0)
+TopTpButton.Size = UDim2.new(0, 160, 0, 42) -- Tăng kích thước nút lớn hơn giúp dễ bấm trên mobile
 TopTpButton.Font = Enum.Font.SourceSansBold
-TopTpButton.Text = "TP [T]"
-TopTpButton.TextColor3 = Color3.fromRGB(60, 220, 140)
-TopTpButton.TextSize = 16
-TopTpButton.ZIndex = 2
+TopTpButton.Text = "TELEPORT [T]"
+TopTpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+TopTpButton.TextSize = 18
+TopTpButton.ZIndex = 3
 
+-- Bo tròn góc cho cục màu xanh
+local TpCorner = Instance.new("UICorner")
+TpCorner.CornerRadius = UDim.new(0, 10)
+TpCorner.Parent = TopTpButton
+
+-- Viền ngoài nhấp nháy/sáng nhẹ cho nút TP
 local TpStroke = Instance.new("UIStroke")
 TpStroke.Parent = TopTpButton
-TpStroke.Color = Color3.fromRGB(60, 220, 140)
+TpStroke.Color = Color3.fromRGB(255, 255, 255)
 TpStroke.Thickness = 1.5
-Instance.new("UICorner", TopTpButton).CornerRadius = UDim.new(0, 6)
 
 local CreditLabel = Instance.new("TextLabel")
 CreditLabel.Name = "CreditLabel"
@@ -445,7 +507,7 @@ local function createOverheadText(character)
     textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 end
 
--- TẠO UI LỰA CHỌN SCRIPT SAU INTRO
+-- TẠO UI LỰA CHỌN SCRIPT SAU INTRO (CHOCOLA AIMBOT & NO USE)
 local function createScriptSelectionMenu()
     local SelectFrame = Instance.new("Frame")
     SelectFrame.Name = "ScriptSelectionFrame"
@@ -471,31 +533,31 @@ local function createScriptSelectionMenu()
     SelectTitle.Position = UDim2.new(0, 0, 0, 10)
     SelectTitle.Size = UDim2.new(1, 0, 0, 25)
     SelectTitle.Font = Enum.Font.GothamBold
-    SelectTitle.Text = "Select Extra Script"
+    SelectTitle.Text = "Select Script Load"
     SelectTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
     SelectTitle.TextSize = 14
-
-    local LkzBtn = Instance.new("TextButton")
-    LkzBtn.Parent = SelectFrame
-    LkzBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
-    LkzBtn.Position = UDim2.new(0.1, 0, 0.35, 0)
-    LkzBtn.Size = UDim2.new(0.8, 0, 0, 30)
-    LkzBtn.Font = Enum.Font.SourceSansBold
-    LkzBtn.Text = "no use chocola aim"
-    LkzBtn.TextColor3 = Color3.fromRGB(0, 220, 255)
-    LkzBtn.TextSize = 16
-    Instance.new("UICorner", LkzBtn).CornerRadius = UDim.new(0, 6)
 
     local ChocolaBtn = Instance.new("TextButton")
     ChocolaBtn.Parent = SelectFrame
     ChocolaBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
-    ChocolaBtn.Position = UDim2.new(0.1, 0, 0.65, 0)
+    ChocolaBtn.Position = UDim2.new(0.1, 0, 0.35, 0)
     ChocolaBtn.Size = UDim2.new(0.8, 0, 0, 30)
     ChocolaBtn.Font = Enum.Font.SourceSansBold
     ChocolaBtn.Text = "Chocola Aimbot"
     ChocolaBtn.TextColor3 = Color3.fromRGB(255, 100, 150)
     ChocolaBtn.TextSize = 16
     Instance.new("UICorner", ChocolaBtn).CornerRadius = UDim.new(0, 6)
+
+    local NoUseBtn = Instance.new("TextButton")
+    NoUseBtn.Parent = SelectFrame
+    NoUseBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+    NoUseBtn.Position = UDim2.new(0.1, 0, 0.65, 0)
+    NoUseBtn.Size = UDim2.new(0.8, 0, 0, 30)
+    NoUseBtn.Font = Enum.Font.SourceSansBold
+    NoUseBtn.Text = "No Use"
+    NoUseBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    NoUseBtn.TextSize = 16
+    Instance.new("UICorner", NoUseBtn).CornerRadius = UDim.new(0, 6)
 
     local function finishSelection()
         SelectFrame:Destroy()
@@ -511,15 +573,6 @@ local function createScriptSelectionMenu()
         table.insert(getgenv().ZenkidConnections, charConn)
     end
 
-    LkzBtn.MouseButton1Click:Connect(function()
-        task.spawn(function()
-            pcall(function()
-               
-            end)
-        end)
-        finishSelection()
-    end)
-
     ChocolaBtn.MouseButton1Click:Connect(function()
         task.spawn(function()
             pcall(function()
@@ -528,9 +581,13 @@ local function createScriptSelectionMenu()
         end)
         finishSelection()
     end)
+
+    NoUseBtn.MouseButton1Click:Connect(function()
+        finishSelection()
+    end)
 end
 
--- XỬ LÝ CHẠY INTRO LẦN ĐẦU
+-- XỬ LÝ CHẠY INTRO
 task.spawn(function()
     task.wait(1)
     
