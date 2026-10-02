@@ -496,7 +496,7 @@ local function createOverheadText(character)
     textLabel.Size = UDim2.new(1, 0, 1, 0)
     textLabel.BackgroundTransparency = 1
     textLabel.Font = Enum.Font.SourceSansBold
-    textLabel.Text = "sell làm tuất ăn cac"
+    textLabel.Text = "free sell làm tuất scam"
     textLabel.TextColor3 = Color3.fromRGB(0, 210, 255)
     textLabel.TextSize = 20
     textLabel.TextScaled = false
