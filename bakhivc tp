@@ -26,12 +26,17 @@ getgenv().ZenkidLoaded = true
 getgenv().ZenkidConnections = {}
 
 ---------------------------------------------------------
--- KHỞI TẠO TỌA ĐỘ TP
+-- TỌA ĐỘ MẶC ĐỊNH (Đã chỉnh Y của P2 = Y của LeftP1 = -4.9)
 ---------------------------------------------------------
-local LeftP1 = CFrame.new(-473.2, -4.9, 95.1)
-local LeftP2 = CFrame.new(-488.8, 4.9, 94.5)
-local RightP1 = CFrame.new(-471.5, -5.1, 23.5)
-local RightP2 = CFrame.new(-486.0, -5.3, 23.6)
+local DEFAULT_LEFT_P1  = CFrame.new(-473.2, -4.9, 95.1)
+local DEFAULT_LEFT_P2  = CFrame.new(-488.8, -4.9, 94.5)
+local DEFAULT_RIGHT_P1 = CFrame.new(-471.5, -5.1, 23.5)
+local DEFAULT_RIGHT_P2 = CFrame.new(-486.0, -4.9, 23.6)
+
+local LeftP1 = DEFAULT_LEFT_P1
+local LeftP2 = DEFAULT_LEFT_P2
+local RightP1 = DEFAULT_RIGHT_P1
+local RightP2 = DEFAULT_RIGHT_P2
 
 local currentSet1 = LeftP1
 local currentSet2 = LeftP2
@@ -183,7 +188,7 @@ local CreditLabel = Instance.new("TextLabel")
 CreditLabel.Name = "CreditLabel"
 CreditLabel.Parent = MainFrame
 CreditLabel.BackgroundTransparency = 1
-CreditLabel.Position = UDim2.new(0, 0, 0.91, 0)
+CreditLabel.Position = UDim2.new(0, 0, 0.93, 0)
 CreditLabel.Size = UDim2.new(1, 0, 0, 15)
 CreditLabel.Font = Enum.Font.SourceSansItalic
 CreditLabel.Text = "make by thanhz2867"
@@ -200,7 +205,7 @@ ContentContainer.BackgroundTransparency = 1
 ContentContainer.Position = UDim2.new(0, 0, 0, 36)
 ContentContainer.Size = UDim2.new(1, 0, 1, -36)
 ContentContainer.Visible = false
-ContentContainer.CanvasSize = UDim2.new(0, 0, 0, 150)
+ContentContainer.CanvasSize = UDim2.new(0, 0, 0, 215)
 ContentContainer.ScrollBarThickness = 2
 ContentContainer.ZIndex = 5
 
@@ -217,7 +222,7 @@ local allowedGears = {
 local SideToggleBtn = Instance.new("TextButton")
 SideToggleBtn.Parent = ContentContainer
 SideToggleBtn.BackgroundColor3 = Color3.fromRGB(15, 30, 50)
-SideToggleBtn.Position = UDim2.new(0.1, 0, 0.04, 0)
+SideToggleBtn.Position = UDim2.new(0.1, 0, 0.03, 0)
 SideToggleBtn.Size = UDim2.new(0.8, 0, 0, 24)
 SideToggleBtn.Font = Enum.Font.GothamBold
 SideToggleBtn.Text = "Side: Left"
@@ -239,10 +244,42 @@ SideToggleBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+-- NÚT RESET TỌA ĐỘ SIDE HIỆN TẠI
+local ResetPosBtn = Instance.new("TextButton")
+ResetPosBtn.Parent = ContentContainer
+ResetPosBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
+ResetPosBtn.Position = UDim2.new(0.1, 0, 0.17, 0)
+ResetPosBtn.Size = UDim2.new(0.8, 0, 0, 24)
+ResetPosBtn.Font = Enum.Font.GothamBold
+ResetPosBtn.Text = "Reset Position"
+ResetPosBtn.TextColor3 = Color3.fromRGB(255, 200, 200)
+ResetPosBtn.TextSize = 12
+Instance.new("UICorner", ResetPosBtn).CornerRadius = UDim.new(0, 6)
+
+ResetPosBtn.MouseButton1Click:Connect(function()
+    if currentSide == "Left" then
+        LeftP1 = DEFAULT_LEFT_P1
+        LeftP2 = DEFAULT_LEFT_P2
+        currentSet1 = LeftP1
+        currentSet2 = LeftP2
+    else
+        RightP1 = DEFAULT_RIGHT_P1
+        RightP2 = DEFAULT_RIGHT_P2
+        currentSet1 = RightP1
+        currentSet2 = RightP2
+    end
+    
+    -- Hiệu ứng phản hồi trên button khi bấm Reset
+    ResetPosBtn.Text = "Reset Done!"
+    task.delay(1, function()
+        ResetPosBtn.Text = "Reset Position"
+    end)
+end)
+
 local PlusBtn = Instance.new("TextButton")
 PlusBtn.Parent = ContentContainer
 PlusBtn.BackgroundColor3 = Color3.fromRGB(15, 30, 50)
-PlusBtn.Position = UDim2.new(0.1, 0, 0.28, 0)
+PlusBtn.Position = UDim2.new(0.1, 0, 0.31, 0)
 PlusBtn.Size = UDim2.new(0.38, 0, 0, 24)
 PlusBtn.Font = Enum.Font.GothamBold
 PlusBtn.Text = "+ Size"
@@ -253,7 +290,7 @@ Instance.new("UICorner", PlusBtn).CornerRadius = UDim.new(0, 6)
 local MinusBtn = Instance.new("TextButton")
 MinusBtn.Parent = ContentContainer
 MinusBtn.BackgroundColor3 = Color3.fromRGB(15, 30, 50)
-MinusBtn.Position = UDim2.new(0.52, 0, 0.28, 0)
+MinusBtn.Position = UDim2.new(0.52, 0, 0.31, 0)
 MinusBtn.Size = UDim2.new(0.38, 0, 0, 24)
 MinusBtn.Font = Enum.Font.GothamBold
 MinusBtn.Text = "- Size"
@@ -264,13 +301,73 @@ Instance.new("UICorner", MinusBtn).CornerRadius = UDim.new(0, 6)
 local FlyGearBtn = Instance.new("TextButton")
 FlyGearBtn.Parent = ContentContainer
 FlyGearBtn.BackgroundColor3 = Color3.fromRGB(20, 40, 70)
-FlyGearBtn.Position = UDim2.new(0.1, 0, 0.52, 0)
+FlyGearBtn.Position = UDim2.new(0.1, 0, 0.45, 0)
 FlyGearBtn.Size = UDim2.new(0.8, 0, 0, 24)
 FlyGearBtn.Font = Enum.Font.GothamBold
 FlyGearBtn.Text = "Fly Gear: None"
 FlyGearBtn.TextColor3 = Color3.fromRGB(100, 220, 255)
 FlyGearBtn.TextSize = 12
 Instance.new("UICorner", FlyGearBtn).CornerRadius = UDim.new(0, 6)
+
+-- HIDE / SHOW CHOCOLA AIMBOT
+local HideChocolaBtn = Instance.new("TextButton")
+HideChocolaBtn.Name = "HideChocolaBtn"
+HideChocolaBtn.Parent = ContentContainer
+HideChocolaBtn.BackgroundColor3 = Color3.fromRGB(25, 45, 80)
+HideChocolaBtn.Position = UDim2.new(0.1, 0, 0.59, 0)
+HideChocolaBtn.Size = UDim2.new(0.8, 0, 0, 26)
+HideChocolaBtn.Font = Enum.Font.GothamBold
+HideChocolaBtn.Text = "Hide Chocola: OFF"
+HideChocolaBtn.TextColor3 = Color3.fromRGB(150, 200, 255)
+HideChocolaBtn.TextSize = 11
+Instance.new("UICorner", HideChocolaBtn).CornerRadius = UDim.new(0, 6)
+
+local isChocolaHidden = false
+
+local function setChocolaVisibility(hidden)
+    local targetCore = CoreGui
+    local targetPlayerGui = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+    
+    local function processGui(gui)
+        if not gui then return end
+        for _, child in ipairs(gui:GetChildren()) do
+            if child:IsA("ScreenGui") and child.Name ~= "ZenkidTPGui" then
+                local lowerName = string.lower(child.Name)
+                if string.find(lowerName, "chocola") or string.find(lowerName, "aim") or string.find(lowerName, "hub") then
+                    child.Enabled = not hidden
+                else
+                    for _, sub in ipairs(child:GetDescendants()) do
+                        if sub:IsA("TextLabel") or sub:IsA("TextButton") then
+                            local txt = string.lower(sub.Text)
+                            if string.find(txt, "chocola") then
+                                child.Enabled = not hidden
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    processGui(targetCore)
+    processGui(targetPlayerGui)
+end
+
+HideChocolaBtn.MouseButton1Click:Connect(function()
+    isChocolaHidden = not isChocolaHidden
+    if isChocolaHidden then
+        HideChocolaBtn.Text = "Hide Chocola: ON"
+        HideChocolaBtn.TextColor3 = Color3.fromRGB(100, 255, 180)
+        HideChocolaBtn.BackgroundColor3 = Color3.fromRGB(20, 80, 100)
+        setChocolaVisibility(true)
+    else
+        HideChocolaBtn.Text = "Hide Chocola: OFF"
+        HideChocolaBtn.TextColor3 = Color3.fromRGB(150, 200, 255)
+        HideChocolaBtn.BackgroundColor3 = Color3.fromRGB(25, 45, 80)
+        setChocolaVisibility(false)
+    end
+end)
 
 local function autoSelectFlyGear()
     local backpack = LocalPlayer:FindFirstChild("Backpack")
@@ -375,7 +472,7 @@ ToggleButton.MouseButton1Click:Connect(function()
     
     if menuOpened then
         ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-        MainFrame.Size = UDim2.new(0, 230, 0, 220)
+        MainFrame.Size = UDim2.new(0, 230, 0, 240)
     else
         ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
         MainFrame.Size = UDim2.new(0, 230, 0, 105)
@@ -393,7 +490,6 @@ LockButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- SỬA LỖI TĂNG / GIẢM KÍCH THƯỚC KHUNG GIAO DIỆN
 PlusBtn.MouseButton1Click:Connect(function()
     MainFrame.Size = MainFrame.Size + UDim2.new(0, 30, 0, 20)
 end)
@@ -436,7 +532,7 @@ local function createOverheadText(character)
     textLabel.Size = UDim2.new(1, 0, 1, 0)
     textLabel.BackgroundTransparency = 1
     textLabel.Font = Enum.Font.SourceSansBold
-    textLabel.Text = "free sell làm tuất scam"
+    textLabel.Text = "sell làm tuất ăn cac"
     textLabel.TextColor3 = Color3.fromRGB(0, 210, 255)
     textLabel.TextSize = 20
     textLabel.TextScaled = false
@@ -445,9 +541,86 @@ local function createOverheadText(character)
     textLabel.TextStrokeColor3 = Color3.fromRGB(0, 20, 50)
 end
 
----------------------------------------------------------
--- CHẠY INTRO VÀ TỰ ĐỘNG KÍCH HOẠT BOOST SCRIPT
----------------------------------------------------------
+-- UI LỰA CHỌN SCRIPT (BLUE THEME)
+local function createScriptSelectionMenu()
+    local SelectFrame = Instance.new("Frame")
+    SelectFrame.Name = "ScriptSelectionFrame"
+    SelectFrame.Parent = ScreenGui
+    SelectFrame.BackgroundColor3 = Color3.fromRGB(12, 18, 30)
+    SelectFrame.Position = UDim2.new(0.5, -120, 0.4, -60)
+    SelectFrame.Size = UDim2.new(0, 240, 0, 125)
+    SelectFrame.Active = true
+    SelectFrame.Draggable = true
+    SelectFrame.ZIndex = 50
+
+    local SelectCorner = Instance.new("UICorner", SelectFrame)
+    SelectCorner.CornerRadius = UDim.new(0, 12)
+
+    local SelectStroke = Instance.new("UIStroke", SelectFrame)
+    SelectStroke.Thickness = 2
+    SelectStroke.Color = Color3.fromRGB(0, 150, 255)
+
+    local SelectTitle = Instance.new("TextLabel")
+    SelectTitle.Parent = SelectFrame
+    SelectTitle.BackgroundTransparency = 1
+    SelectTitle.Position = UDim2.new(0, 0, 0, 10)
+    SelectTitle.Size = UDim2.new(1, 0, 0, 25)
+    SelectTitle.Font = Enum.Font.GothamBold
+    SelectTitle.Text = "Select Script Load"
+    SelectTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SelectTitle.TextSize = 14
+
+    local ChocolaBtn = Instance.new("TextButton")
+    ChocolaBtn.Parent = SelectFrame
+    ChocolaBtn.BackgroundColor3 = Color3.fromRGB(20, 40, 70)
+    ChocolaBtn.Position = UDim2.new(0.1, 0, 0.35, 0)
+    ChocolaBtn.Size = UDim2.new(0.8, 0, 0, 30)
+    ChocolaBtn.Font = Enum.Font.SourceSansBold
+    ChocolaBtn.Text = "Chocola Aimbot"
+    ChocolaBtn.TextColor3 = Color3.fromRGB(100, 200, 255)
+    ChocolaBtn.TextSize = 15
+    Instance.new("UICorner", ChocolaBtn).CornerRadius = UDim.new(0, 6)
+
+    local NoUseBtn = Instance.new("TextButton")
+    NoUseBtn.Parent = SelectFrame
+    NoUseBtn.BackgroundColor3 = Color3.fromRGB(20, 30, 45)
+    NoUseBtn.Position = UDim2.new(0.1, 0, 0.65, 0)
+    NoUseBtn.Size = UDim2.new(0.8, 0, 0, 30)
+    NoUseBtn.Font = Enum.Font.SourceSansBold
+    NoUseBtn.Text = "No Use"
+    NoUseBtn.TextColor3 = Color3.fromRGB(180, 200, 220)
+    NoUseBtn.TextSize = 15
+    Instance.new("UICorner", NoUseBtn).CornerRadius = UDim.new(0, 6)
+
+    local function finishSelection()
+        SelectFrame:Destroy()
+        MainFrame.Visible = true
+
+        if LocalPlayer.Character then
+            createOverheadText(LocalPlayer.Character)
+        end
+
+        local charConn = LocalPlayer.CharacterAdded:Connect(function(newChar)
+            createOverheadText(newChar)
+        end)
+        table.insert(getgenv().ZenkidConnections, charConn)
+    end
+
+    ChocolaBtn.MouseButton1Click:Connect(function()
+        task.spawn(function()
+            pcall(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/chocolascript-glitch/Chocola-Aimbot-Cap/refs/heads/main/Script.lua"))()
+            end)
+        end)
+        finishSelection()
+    end)
+
+    NoUseBtn.MouseButton1Click:Connect(function()
+        finishSelection()
+    end)
+end
+
+-- CHẠY INTRO
 task.spawn(function()
     task.wait(1)
     
@@ -460,23 +633,6 @@ task.spawn(function()
     
     tweenTitle.Completed:Connect(function()
         IntroFrame:Destroy()
-        MainFrame.Visible = true
-
-        -- Tạo chữ trên đầu nhân vật
-        if LocalPlayer.Character then
-            createOverheadText(LocalPlayer.Character)
-        end
-
-        local charConn = LocalPlayer.CharacterAdded:Connect(function(newChar)
-            createOverheadText(newChar)
-        end)
-        table.insert(getgenv().ZenkidConnections, charConn)
-
-        -- Tự động chạy Tool Boost Script
-        task.spawn(function()
-            pcall(function()
-                loadstring(game:HttpGet("https://orrxl4-protector.com/api/raw?id=pa2b7h4n"))()
-            end)
-        end)
+        createScriptSelectionMenu()
     end)
 end)
